@@ -45,7 +45,7 @@ namespace LegacyApp
             if (calculator == null)
                 calculator = CalculateNormalClient;
 
-            calculator.Invoke(user);
+            user=calculator.Invoke(user);
 
             return user;
         }
