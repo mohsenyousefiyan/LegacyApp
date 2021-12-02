@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LegacyApp.Validation.UserValidation;
+using System;
 
 namespace LegacyApp
 {
@@ -6,29 +7,6 @@ namespace LegacyApp
     {
         public bool AddUser(string firname, string surname, string email, DateTime dateOfBirth, int clientId)
         {
-            if (string.IsNullOrEmpty(firname) || string.IsNullOrEmpty(surname))
-            {
-                return false;
-            }
-
-            if (email.Contains("@") && !email.Contains("."))
-            {
-                return false;
-            }
-
-            var now = DateTime.Now;
-            int age = now.Year - dateOfBirth.Year;
-
-            if (now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day))
-            {
-                age--;
-            }
-
-            if (age < 21)
-            {
-                return false;
-            }
-
             var clientRepository = new ClientRepository();
             var client = clientRepository.GetById(clientId);
 
@@ -41,9 +19,12 @@ namespace LegacyApp
                 Surname = surname
             };
 
+            if (!UserValidate(user))
+                return false;
+            
+          
             if (client.Name == "VeryImportantClient")
-            {
-                // Skip credit chek
+            {               
                 user.HasCreditLimit = false;
             }
             else if (client.Name == "ImportantClient")
@@ -76,6 +57,12 @@ namespace LegacyApp
             UserDataAccess.AddUser(user);
 
             return true;
+        }
+
+        private bool UserValidate(User user)
+        {
+            var userValidation = new UserValidationRule();
+            return userValidation.Validate(user).Success;
         }
     }
 }

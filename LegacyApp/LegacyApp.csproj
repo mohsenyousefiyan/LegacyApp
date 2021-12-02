@@ -10,4 +10,8 @@
       <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LegacyApp.Helpers\LegacyApp.Helpers.csproj" />
+    </ItemGroup>
+
 </Project>
