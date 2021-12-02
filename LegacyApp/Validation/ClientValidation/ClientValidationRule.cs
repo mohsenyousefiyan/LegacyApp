@@ -3,7 +3,7 @@ using System;
 
 namespace LegacyApp.Validation.ClientValidation
 {
-    public class ClientValidationRule : ValidationRule<Client>
+    public class ClientValidationRule : BaseValidationRule<Client>
     {
         public override ValidationResult Validate(Client model)
         {

@@ -1,16 +1,28 @@
-﻿namespace LegacyApp.Validation.Base
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LegacyApp.Validation.Base
 {
     public  class ValidationResult
     {
-        public bool Success { get; }
-        public string FieldName { get; }
-        public string Error { get; }
+        private readonly Dictionary<string, string> _errors;
+       
 
-        public ValidationResult(bool success, string error, string fieldName)
+        public ValidationResult()
         {
-            Success = success;
-            Error = error;
-            FieldName = fieldName;
+            _errors = new Dictionary<string, string>();
         }
+
+        public void AddErrors(string fieldName, string errorMessage)
+        {
+            if (_errors.ContainsKey(fieldName))
+                _errors[fieldName] += Environment.NewLine + errorMessage;
+            else
+                _errors.Add(fieldName, errorMessage);
+        }
+        public Dictionary<string, string> GetErrors() => _errors;
+        public void ClearErrors() => _errors.Clear();
+        public bool IsSuccess => ! _errors.Any();
     }
 }

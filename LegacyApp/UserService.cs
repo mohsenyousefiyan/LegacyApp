@@ -5,64 +5,41 @@ namespace LegacyApp
 {
     public class UserService
     {
-        public bool AddUser(string firname, string surname, string email, DateTime dateOfBirth, int clientId)
+        private readonly IClientRepository clientRepository;
+        private readonly IUserRepository userRepository;
+        private readonly UserFactoryService userFactoryService;
+
+        public UserService(IClientRepository clientRepository,IUserRepository userRepository, UserFactoryService userFactoryService )
         {
-            var clientRepository = new ClientRepository();
+            this.clientRepository = clientRepository;
+            this.userRepository = userRepository;
+            this.userFactoryService = userFactoryService;
+        }
+
+        public UserService()
+        {
+            this.clientRepository= new ClientRepository();        
+            this.userFactoryService=new UserFactoryService(new UserValidationRule(),new UserCreditServiceClient());
+            this.userRepository = new UserDataAccess();
+        }
+
+        public bool AddUser(string firname, string surname, string email, DateTime dateOfBirth, int clientId)
+        {           
             var client = clientRepository.GetById(clientId);
-
-            var user = new User
-            {
-                Client = client,
-                DateOfBirth = dateOfBirth,
-                EmailAddress = email,
-                Firstname = firname,
-                Surname = surname
-            };
-
-            if (!UserValidate(user))
-                return false;
             
-          
-            if (client.Name == "VeryImportantClient")
-            {               
-                user.HasCreditLimit = false;
-            }
-            else if (client.Name == "ImportantClient")
-            {
-                // Do credit check and double credit limit
-                user.HasCreditLimit = true;
-                using (var userCreditService = new UserCreditServiceClient())
-                {
-                    var creditLimit = userCreditService.GetCreditLimit(user.Firstname, user.Surname, user.DateOfBirth);
-                    creditLimit = creditLimit * 2;
-                    user.CreditLimit = creditLimit;
-                }
-            }
-            else
-            {
-                // Do credit check
-                user.HasCreditLimit = true;
-                using (var userCreditService = new UserCreditServiceClient())
-                {
-                    var creditLimit = userCreditService.GetCreditLimit(user.Firstname, user.Surname, user.DateOfBirth);
-                    user.CreditLimit = creditLimit;
-                }
-            }
-
-            if (user.HasCreditLimit && user.CreditLimit < 500)
-            {
+            var user = userFactoryService.Create(client,firname,surname,dateOfBirth,email);
+           
+            if(user==null)  
                 return false;
-            }
-            
-            UserDataAccess.AddUser(user);
+                                            
+            if (user.HasCreditLimit && user.CreditLimit < 500)          
+                return false;
+
+
+            userRepository.AddUser(user);
 
             return true;
         }
-
-        private bool UserValidate(User user)
-        {
-            var userValidation = new UserValidationRule();
-            return userValidation.Validate(user).Success;
-        }
+       
     }
 }

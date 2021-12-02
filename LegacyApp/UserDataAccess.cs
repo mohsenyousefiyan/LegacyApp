@@ -1,13 +1,17 @@
-﻿using System;  
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 
 namespace LegacyApp
 {
-    public static class UserDataAccess
+    public interface IUserRepository
     {
-        public static void AddUser(User user)
+        void AddUser(User user);
+    }
+
+    public  class UserDataAccess: IUserRepository
+    {
+        public  void AddUser(User user)
         {
             var connectionString = ConfigurationManager.ConnectionStrings["appDatabase"].ConnectionString;
 

@@ -4,32 +4,32 @@ using System;
 
 namespace LegacyApp.Validation.UserValidation
 {
-    public class UserValidationRule : ValidationRule<User>
+    public class UserValidationRule : BaseValidationRule<User>
     {
         public override ValidationResult Validate(User model)
-        {
+        {         
+            var validationResult=new ValidationResult();
+
             if (!model.Firstname.HasValue())
-                return new ValidationResult(false, "نام  فاقد مقدار می باشد", nameof(model.Firstname));
+                validationResult.AddErrors(nameof(model.Firstname), "نام  فاقد مقدار می باشد");
 
             if(!model.Surname.HasValue())
-                return new ValidationResult(false, "نام خانوادگی  فاقد مقدار می باشد", nameof(model.Surname));
+                validationResult.AddErrors(nameof(model.Surname), "نام خانوادگی  فاقد مقدار می باشد");
 
             if(!model.EmailAddress.IsValid())
-                return new ValidationResult(false, "ایمیل نامعتبر است", nameof(model.EmailAddress));
+                validationResult.AddErrors(nameof(model.EmailAddress), "ایمیل نامعتبر است");
 
 
             var now = DateTime.Now;
             int age = now.Year - model.DateOfBirth.Year;
-
             if (now.Month < model.DateOfBirth.Month || (now.Month == model.DateOfBirth.Month && now.Day < model.DateOfBirth.Day))           
                 age--;
             
-
             if (age < 21)
-                return new ValidationResult(false, "تاریخ تولد نامعتبر است", nameof(model.DateOfBirth));
-                    
+               validationResult.AddErrors(nameof(model.DateOfBirth),"تاریخ تولد نامعتبر است" );
 
-            return new ValidationResult(true, null, null);
+
+            return validationResult;
         }
     }
 }
